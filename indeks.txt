@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>SPK Diagnosa Penyakit Tumbuhan</title>
+<style>
+    body { font-family: Arial; margin: 40px; }
+    select, button { padding: 10px; margin-top: 10px; width: 300px; }
+    .result { margin-top: 20px; padding: 15px; background: #f0f0f0; width: 350px; }
+</style>
+</head>
+<body>
+
+<h2>SPK Diagnosa Penyakit Tumbuhan</h2>
+<p>Pilih gejala untuk mengetahui kemungkinan penyakit.</p>
+
+<!-- Pilihan gejala pertama -->
+<label>Gejala 1:</label><br>
+<select id="gejala1">
+    <option value="">-- pilih gejala --</option>
+</select><br>
+
+<!-- Pilihan gejala kedua (tidak redundan) -->
+<label>Gejala 2:</label><br>
+<select id="gejala2">
+    <option value="">-- pilih gejala --</option>
+</select><br>
+
+<button onclick="diagnosa()">Diagnosa</button>
+
+<div class="result" id="hasil"></div>
+
+<script>
+// Data hasil ekstraksi dari file Excel
+const data = [
+    { tanaman:"Anggur", penyakit:"Embun Tepung", gejala:"Daun Menguning dan Menggulung" },
+    { tanaman:"Gandum", penyakit:"Karat Daun", gejala:"Bercak Timbul pada Permukaan Daun" },
+    { tanaman:"Padi", penyakit:"Hawar Daun", gejala:"Ujung Daun Mengering" },
+    { tanaman:"Tomat", penyakit:"Layu Fusarium", gejala:"Tanaman Layu meski Tanah Basah" },
+    { tanaman:"Melon", penyakit:"Busuk Batang", gejala:"Batang Bagian dalam Cokelat" },
+    { tanaman:"Timun", penyakit:"Virus Daun Keriting", gejala:"Daun Keriting dan Mengecil" },
+    { tanaman:"Pepaya", penyakit:"Bercak Daun Cincin", gejala:"Ada Cincin Konsentris" },
+    { tanaman:"Kentang", penyakit:"Layu Bakteri", gejala:"Tanaman Layu Mendadak" },
+    { tanaman:"Cabai", penyakit:"Gummosis", gejala:"Getah Kental Keluar dari Batang" },
+    { tanaman:"Kelapa Sawit", penyakit:"Busuk Pangkal Batang", gejala:"Pangkal Batang Membusuk dan Hitam" }
+];
+
+// Ambil unik gejala
+const daftarGejala = [...new Set(data.map(d => d.gejala))];
+
+// Isi dropdown gejala1 dan gejala2
+function isiDropdown() {
+    const g1 = document.getElementById("gejala1");
+    const g2 = document.getElementById("gejala2");
+
+    daftarGejala.forEach(g => {
+        g1.innerHTML += `<option value="${g}">${g}</option>`;
+        g2.innerHTML += `<option value="${g}">${g}</option>`;
+    });
+}
+
+// Filter gejala2 agar tidak sama dengan gejala1
+document.getElementById("gejala1").addEventListener("change", function() {
+    const dipilih = this.value;
+    const g2 = document.getElementById("gejala2");
+    g2.innerHTML = `<option value="">-- pilih gejala --</option>`;
+    daftarGejala
+        .filter(g => g !== dipilih)
+        .forEach(g => g2.innerHTML += `<option value="${g}">${g}</option>`);
+});
+
+// Fungsi diagnosa
+function diagnosa() {
+    const g1 = document.getElementById("gejala1").value;
+    const g2 = document.getElementById("gejala2").value;
+    const hasilDiv = document.getElementById("hasil");
+
+    if (!g1) {
+        hasilDiv.innerHTML = "❗ Pilih minimal 1 gejala.";
+        return;
+    }
+
+    // Mencocokkan gejala
+    const kemungkinan = data.filter(d => d.gejala === g1 || d.gejala === g2);
+
+    if (kemungkinan.length === 0) {
+        hasilDiv.innerHTML = "❗ Tidak ditemukan penyakit yang cocok.";
+        return;
+    }
+
+    let output = "<b>Hasil Diagnosa:</b><br><br>";
+    kemungkinan.forEach(k => {
+        output += `🌱 <b>${k.tanaman}</b><br>
+                   Penyakit: <b>${k.penyakit}</b><br>
+                   Gejala: ${k.gejala}<br><br>`;
+    });
+
+    hasilDiv.innerHTML = output;
+}
+
+isiDropdown();
+</script>
+
+</body>
+</html>
